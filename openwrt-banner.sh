@@ -102,7 +102,7 @@ print_system_info() {
     local board=$(grep OPENWRT_BOARD /etc/os-release | cut -d'"' -f2 2>/dev/null || echo 'Unknown')
     local version=$(grep VERSION= /etc/os-release | cut -d'"' -f2 2>/dev/null || echo 'Unknown')
     local busybox_version=$(busybox --help 2>&1 | head -1 | awk '{print $2}' || echo 'Unknown')
-    local ssh_sessions=$(who | wc -l 2>/dev/null || echo "0")
+    local ssh_sessions=$(busybox who | wc -l 2>/dev/null || echo "0")
     local packages=$(opkg list-installed 2>/dev/null | wc -l || echo "0")
     local upgrades=$(opkg list-upgradable 2>/dev/null | wc -l || echo "0")
 
