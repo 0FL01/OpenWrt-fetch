@@ -168,8 +168,8 @@ print_system_info() {
     ssh_sessions=$(get_ssh_sessions)
     local packages
     packages=$(opkg list-installed 2>/dev/null | wc -l || echo "0")
-    local upgrades
-    upgrades=$(opkg list-upgradable 2>/dev/null | wc -l || echo "0")
+ #   local upgrades
+ #   upgrades=$(opkg list-upgradable 2>/dev/null | wc -l || echo "0")
 
     # Print all information
     printf "\n"
@@ -189,7 +189,7 @@ print_system_info() {
     printf "Swap:         ${PURPLE}💿 %s${NC}\n" "$swap_info"
     printf "Load Avg:     ${PURPLE}📊 %s${NC}\n" "$load_avg"
     printf "Packages:     ${YELLOW}📦 %s${NC}\n" "$packages"
-    printf "Upgrades:     ${YELLOW}⬆️  %s${NC}\n" "$upgrades"
+#    printf "Upgrades:     ${YELLOW}⬆️  %s${NC}\n" "$upgrades"
     printf "SSH Sessions: ${RED}🔗 %s${NC}\n" "$ssh_sessions"
     printf "\n${NC}"
 }
