@@ -6,7 +6,7 @@
 
 ## Демонстрация
 
-![image_2025-06-14_22-00-35](https://github.com/user-attachments/assets/d82a1d97-2982-4b51-8856-58f21f773a9f)
+![image_2025-06-14_22-04-46](https://github.com/user-attachments/assets/f7684634-8629-42bd-8278-30a4df964c68)
 
 ## Основные возможности
 
