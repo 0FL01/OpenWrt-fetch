@@ -6,7 +6,6 @@
 
 ## Демонстрация
 
-Здесь будет ваш скриншот.
 ![image_2025-06-14_21-32-10](https://github.com/user-attachments/assets/093bb28e-bf52-4ebc-b6e3-0c9c3da24bbe)
 
 ## Основные возможности
