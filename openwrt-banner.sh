@@ -67,7 +67,8 @@ get_memory_info() {
              used_kb = total - free - buffers - cached
              used_mb = int(used_kb/1024)
              total_mb = int(total/1024)
-             printf "%dMB/%dMB used", used_mb, total_mb
+             used_percent = int((used_kb * 100) / total)
+             printf "%dMB/%dMB used (%d%%)", used_mb, total_mb, used_percent
          }' /proc/meminfo
 }
 
@@ -78,7 +79,8 @@ get_swap_info() {
                  used_kb = total - free
                  used_mb = int(used_kb/1024)
                  total_mb = int(total/1024)
-                 printf "%dMB/%dMB used", used_mb, total_mb
+                 used_percent = int((used_kb * 100) / total)
+                 printf "%dMB/%dMB used (%d%%)", used_mb, total_mb, used_percent
              } else {
                  printf "0B/511MB used"
              }
@@ -123,7 +125,8 @@ print_system_info() {
     local router_model
     router_model=$(echo "$ubus_data" | grep '^\s*"model":' | cut -d'"' -f4 2>/dev/null || echo 'Unknown')
     local os_info
-    os_info=$(echo "$ubus_data" | grep '^\s*"description":' | cut -d'"' -f4 2>/dev/null || echo 'OpenWrt')
+    os_info=$(echo "$ubus_data" | grep '^\s*"description":' | cut -d'"' -f4 2>/dev/null)
+    os_info=$(echo "$os_info" | grep -oE "OpenWrt [0-9]+\\.[0-9]+\\.[0-9]+" || echo 'OpenWrt')
     local kernel
     kernel=$(echo "$ubus_data" | grep '^\s*"kernel":' | cut -d'"' -f4 2>/dev/null || uname -r)
     
