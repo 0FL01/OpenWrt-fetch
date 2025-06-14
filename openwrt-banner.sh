@@ -198,13 +198,17 @@ print_system_info() {
     
     local upgrades
     upgrades=$(opkg list-upgradable 2>/dev/null | wc -l || echo "0")
+    
+    # Get OS pretty name from /etc/os-release
+    local os_info
+    os_info=$(grep PRETTY_NAME /etc/os-release | cut -d'"' -f2 2>/dev/null || echo 'Linux')
 
     printf "\n"
     printf "Date:         ${YELLOW}📅 %s${NC}\n" "$current_date"
     printf "Uptime:       ${BLUE}🕐 %s${NC}\n" "$uptime"
     printf "Router:       ${RED}%s${NC}\n" "$cpu_model"
     printf "External IP:  ${CYAN}%s${NC}\n" "$ext_ip"
-    printf "OS:           ${GREEN}Linux 🐧${NC}\n"
+    printf "OS:           ${GREEN}%s 🐧${NC}\n" "$os_info"
     printf "CPU:          ${GREEN}%s${NC}\n" "$board"
     printf "Kernel:       ${GREEN}%s${NC}\n" "$kernel"
     printf "Architecture: ${GREEN}%s${NC}\n" "$architecture"
