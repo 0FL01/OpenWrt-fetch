@@ -146,8 +146,6 @@ print_system_info() {
     current_date=$(date +'%Y-%m-%d %H:%M:%S')
     local uptime
     uptime=$(get_uptime)
-    local ext_ip
-    ext_ip=$(wget -qO- --timeout=3 ipinfo.io/ip 2>/dev/null || echo 'N/A')
     local cpu_temp
     cpu_temp=$(get_cpu_temp)
     local cores
@@ -168,15 +166,12 @@ print_system_info() {
     ssh_sessions=$(get_ssh_sessions)
     local packages
     packages=$(opkg list-installed 2>/dev/null | wc -l || echo "0")
- #   local upgrades
- #   upgrades=$(opkg list-upgradable 2>/dev/null | wc -l || echo "0")
 
     # Print all information
     printf "\n"
     printf "Date:         ${YELLOW}📅 %s${NC}\n" "$current_date"
     printf "Uptime:       ${BLUE}🕐 %s${NC}\n" "$uptime"
     printf "Router:       ${RED}%s${NC}\n" "$router_model"
-    printf "External IP:  ${CYAN}%s${NC}\n" "$ext_ip"
     printf "OS:           ${GREEN}%s 🐧${NC}\n" "$os_info"
     printf "CPU:          ${GREEN}%s${NC}\n" "$cpu_platform"
     printf "Kernel:       ${GREEN}%s${NC}\n" "$kernel"
@@ -189,7 +184,6 @@ print_system_info() {
     printf "Swap:         ${PURPLE}💿 %s${NC}\n" "$swap_info"
     printf "Load Avg:     ${PURPLE}📊 %s${NC}\n" "$load_avg"
     printf "Packages:     ${YELLOW}📦 %s${NC}\n" "$packages"
-#    printf "Upgrades:     ${YELLOW}⬆️  %s${NC}\n" "$upgrades"
     printf "SSH Sessions: ${RED}🔗 %s${NC}\n" "$ssh_sessions"
     printf "\n${NC}"
 }
