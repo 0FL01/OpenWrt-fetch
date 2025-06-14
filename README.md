@@ -13,16 +13,7 @@
 ## Быстрая установка
 
 ```bash
-# Скачиваем скрипт
-wget -O /etc/profile.d/banner.sh https://raw.githubusercontent.com/YOUR_REPO/openwrt-banner.sh
-
-# Делаем исполняемым
-chmod +x /etc/profile.d/banner.sh
-
-# Добавляем вызов в профиль (выберите один из вариантов)
-echo '/etc/profile.d/banner.sh' >> /etc/profile
-# ИЛИ для конкретного пользователя:
-echo '/etc/profile.d/banner.sh' >> ~/.profile
+wget -O /etc/profile.d/banner.sh https://raw.githubusercontent.com/0FL01/OpenWrt-fetch/main/openwrt-banner.sh && chmod +x /etc/profile.d/banner.sh && echo '/etc/profile.d/banner.sh' >> /etc/profile
 ```
 
 ## Ручная установка
