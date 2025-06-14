@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Цветовые коды
+# Color codes
 RED='\033[31m'
 GREEN='\033[32m'
 YELLOW='\033[33m'
@@ -11,7 +11,7 @@ WHITE='\033[37m'
 NC='\033[0m' # No Color
 
 print_banner() {
-    printf "\033[1;1H\033[2J" # Очистка экрана
+    printf "\033[1;1H\033[2J" # Clear screen
     printf "${RED}"
     cat << 'EOF'
     ██████╗ ██████╗ ███████╗███╗   ██╗██╗    ██╗██████╗ ████████╗
@@ -32,9 +32,9 @@ get_cpu_temp() {
     local temp_c=$((temp/1000))
     
     if [ $temp_c -ge 65 ]; then
-       printf "${RED}%d°C${NC}" "$temp_c"
+       printf "${RED}%d.0°C${NC}" "$temp_c"
     else
-       printf "${GREEN}%d°C${NC}" "$temp_c"
+       printf "${GREEN}%d.0°C${NC}" "$temp_c"
     fi
 }
 
@@ -45,11 +45,11 @@ get_uptime() {
     local minutes=$(((uptime_sec % 3600) / 60))
     
     if [ $days -gt 0 ]; then
-        printf "%d дней %d часов %d минут" $days $hours $minutes
+        printf "%d day, %d hours, %d minutes" $days $hours $minutes
     elif [ $hours -gt 0 ]; then
-        printf "%d часов %d минут" $hours $minutes
+        printf "%d hours, %d minutes" $hours $minutes
     else
-        printf "%d минут" $minutes
+        printf "%d minutes" $minutes
     fi
 }
 
@@ -59,7 +59,21 @@ get_memory_info() {
              used_kb = total - free - buffers - cached
              used_mb = int(used_kb/1024)
              total_mb = int(total/1024)
-             printf "%dМБ/%dМБ", used_mb, total_mb
+             printf "%dMB/%dMB used", used_mb, total_mb
+         }' /proc/meminfo
+}
+
+get_swap_info() {
+    awk '/SwapTotal/{total=$2} /SwapFree/{free=$2}
+         END{
+             if(total > 0) {
+                 used_kb = total - free
+                 used_mb = int(used_kb/1024)
+                 total_mb = int(total/1024)
+                 printf "%dMB/%dMB used", used_mb, total_mb
+             } else {
+                 printf "0B/511MB used"
+             }
          }' /proc/meminfo
 }
 
@@ -68,7 +82,7 @@ get_load_avg() {
 }
 
 get_disk_usage() {
-    df -h / | awk 'NR==2{print $3"/"$2" ("$5")"}'
+    df -h / | awk 'NR==2{gsub(/G/, "GB", $3); gsub(/G/, "GB", $2); gsub(/%/, "", $5); print $3"/"$2" used ("$5"%)"}'
 }
 
 print_system_info() {
@@ -83,28 +97,38 @@ print_system_info() {
     local processes=$(ps | wc -l)
     local disk_info=$(get_disk_usage)
     local mem_info=$(get_memory_info)
+    local swap_info=$(get_swap_info)
     local load_avg=$(get_load_avg)
-    local board=$(grep OPENWRT_BOARD /etc/os-release | cut -d'"' -f2)
-    local version=$(grep VERSION= /etc/os-release | cut -d'"' -f2)
+    local board=$(grep OPENWRT_BOARD /etc/os-release | cut -d'"' -f2 2>/dev/null || echo 'Unknown')
+    local version=$(grep VERSION= /etc/os-release | cut -d'"' -f2 2>/dev/null || echo 'Unknown')
+    local busybox_version=$(busybox --help 2>&1 | head -1 | awk '{print $2}' || echo 'Unknown')
+    local ssh_sessions=$(who | wc -l 2>/dev/null || echo "0")
+    local packages=$(opkg list-installed 2>/dev/null | wc -l || echo "0")
+    local upgrades=$(opkg list-upgradable 2>/dev/null | wc -l || echo "0")
 
     printf "\n"
-    printf "   ${WHITE}%-15s${YELLOW}%-35s${NC}\n" "Дата:" "📆 $current_date"
-    printf "   ${WHITE}%-15s${YELLOW}%-35s${NC}\n" "Время работы:" "🕐 $uptime"
-    printf "   ${WHITE}%-15s${RED}%-35s${NC}\n" "OpenWrt:" "$version"
-    printf "   ${WHITE}%-15s${RED}%-35s${NC}\n" "Плата:" "$board"
-    printf "   ${WHITE}%-15s${RED}%-35s${NC}\n" "Внешний IP:" "$ext_ip"
-    printf "   ${WHITE}%-15s${GREEN}%-35s${NC}\n" "CPU:" "$cpu_model"
-    printf "   ${WHITE}%-15s${GREEN}%-35s${NC}\n" "Ядро:" "$kernel"
-    printf "   ${WHITE}%-15s${GREEN}%-35s${NC}\n" "Архитектура:" "$architecture"
-    printf "   ${WHITE}%-15s🌡 %-35s${NC}\n" "Температура:" "$cpu_temp"
-    printf "   ${WHITE}%-15s${RED}%-35s${NC}\n" "Ядра CPU:" "$cores"
-    printf "   ${WHITE}%-15s${RED}%-35s${NC}\n" "Процессы:" "$processes"
-    printf "   ${WHITE}%-15s${PURPLE}%-35s${NC}\n" "Диск:" "💾 $disk_info"
-    printf "   ${WHITE}%-15s${PURPLE}%-35s${NC}\n" "Память:" "🧠 $mem_info"
-    printf "   ${WHITE}%-15s${PURPLE}%-35s${NC}\n" "Нагрузка:" "📈 $load_avg"
+    printf "BusyBox:      ${CYAN}%s${NC}\n" "$busybox_version"
+    printf "Date:         ${YELLOW}📅 %s${NC}\n" "$current_date"
+    printf "Uptime:       ${BLUE}🕐 %s${NC}\n" "$uptime"
+    printf "Router:       ${RED}%s${NC}\n" "$board"
+    printf "External IP:  ${CYAN}%s${NC}\n" "$ext_ip"
+    printf "OS:           ${GREEN}Linux 🐧${NC}\n"
+    printf "CPU:          ${GREEN}%s${NC}\n" "$cpu_model"
+    printf "Kernel:       ${GREEN}%s${NC}\n" "$kernel"
+    printf "Architecture: ${GREEN}%s${NC}\n" "$architecture"
+    printf "CPU Temp:     🌡 %s\n" "$cpu_temp"
+    printf "Cores:        ${RED}%s${NC}\n" "$cores"
+    printf "Processes:    ${RED}%s${NC}\n" "$processes"
+    printf "Disk Usage:   ${PURPLE}💾 %s${NC}\n" "$disk_info"
+    printf "Memory:       ${PURPLE}🧠 %s${NC}\n" "$mem_info"
+    printf "Swap:         ${PURPLE}💿 %s${NC}\n" "$swap_info"
+    printf "Load Avg:     ${PURPLE}📊 %s${NC}\n" "$load_avg"
+    printf "Packages:     ${YELLOW}📦 %s${NC}\n" "$packages"
+    printf "Upgrades:     ${YELLOW}⬆️  %s${NC}\n" "$upgrades"
+    printf "SSH Sessions: ${RED}🔗 %s${NC}\n" "$ssh_sessions"
     printf "\n${NC}"
 }
 
-# Главный запуск
+# Main execution
 print_banner
 print_system_info 
